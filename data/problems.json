@@ -1,0 +1,53 @@
+[
+    {
+        "id": "count-digits",
+        "sheet": "a2z",
+        "step": "Step 1: Learn the basics",
+        "topic": "Lec 4: Know Basic Math",
+        "name": "Count Digits",
+        "difficulty": "Easy",
+        "leetcodeUrl": "https://leetcode.com/problems/count-digits/",
+        "gfgUrl": "https://practice.geeksforgeeks.org/problems/count-digits5716/1",
+        "status": "todo"
+    },
+    {
+        "id": "reverse-integer",
+        "sheet": "a2z",
+        "step": "Step 1: Learn the basics",
+        "topic": "Lec 4: Know Basic Math",
+        "name": "Reverse Integer",
+        "difficulty": "Medium",
+        "leetcodeUrl": "https://leetcode.com/problems/reverse-integer/",
+        "status": "todo"
+    },
+    {
+        "id": "palindrome-number",
+        "sheet": "a2z",
+        "step": "Step 1: Learn the basics",
+        "topic": "Lec 4: Know Basic Math",
+        "name": "Palindrome Number",
+        "difficulty": "Easy",
+        "leetcodeUrl": "https://leetcode.com/problems/palindrome-number/",
+        "status": "todo"
+    },
+    {
+        "id": "two-sum",
+        "sheet": "a2z",
+        "step": "Step 3: Solve Problems on Arrays",
+        "topic": "Lec 1: Easy",
+        "name": "Two Sum",
+        "difficulty": "Easy",
+        "leetcodeUrl": "https://leetcode.com/problems/two-sum/",
+        "status": "solved"
+    },
+    {
+        "id": "longest-consecutive-sequence",
+        "sheet": "a2z",
+        "step": "Step 3: Solve Problems on Arrays",
+        "topic": "Lec 3: Hard",
+        "name": "Longest Consecutive Sequence",
+        "difficulty": "Medium",
+        "leetcodeUrl": "https://leetcode.com/problems/longest-consecutive-sequence/",
+        "status": "review"
+    }
+]

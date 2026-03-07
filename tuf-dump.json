@@ -1,0 +1,102 @@
+[
+  {
+    "extractedTitle": "Home",
+    "link": "https://takeuforward.org/plus/home",
+    "rawRowText": "Home\nPlus\nSheet"
+  },
+  {
+    "extractedTitle": "Track",
+    "link": "https://takeuforward.org/plus/home",
+    "rawRowText": "Track"
+  },
+  {
+    "extractedTitle": "Minimum number of bracket reversals to make an expression balanced",
+    "link": "https://takeuforward.org/plus/dsa/problems/minimum-number-of-bracket-reversals-to-make-an-expression-balanced?source=strivers-a2z-dsa-track",
+    "rawRowText": "Minimum number of bracket reversals to make an expression balanced\n\tSolve\t\n\t\n---\n\t\n\t\n\t\n\t\nHard"
+  },
+  {
+    "extractedTitle": "Minimum number of bracket reversals to make an expression balanced",
+    "link": "https://takeuforward.org/plus/dsa/problems/minimum-number-of-bracket-reversals-to-make-an-expression-balanced?tab=editorial&source=strivers-a2z-dsa-track",
+    "rawRowText": "Minimum number of bracket reversals to make an expression balanced\n\tSolve\t\n\t\n---\n\t\n\t\n\t\n\t\nHard"
+  },
+  {
+    "extractedTitle": "",
+    "link": "https://leetcode.com/problems/minimum-add-to-make-parentheses-valid/",
+    "rawRowText": ""
+  },
+  {
+    "extractedTitle": "Count and say",
+    "link": "https://takeuforward.org/plus/dsa/problems/count-and-say?source=strivers-a2z-dsa-track",
+    "rawRowText": "Count and say\n\tSolve\t\n\t\n---\n\t\n\t\n\t\n\t\nHard"
+  },
+  {
+    "extractedTitle": "Count and say",
+    "link": "https://takeuforward.org/plus/dsa/problems/count-and-say?tab=editorial&source=strivers-a2z-dsa-track",
+    "rawRowText": "Count and say\n\tSolve\t\n\t\n---\n\t\n\t\n\t\n\t\nHard"
+  },
+  {
+    "extractedTitle": "",
+    "link": "https://leetcode.com/problems/count-and-say/",
+    "rawRowText": ""
+  },
+  {
+    "extractedTitle": "Rabin Karp Algorithm",
+    "link": "https://takeuforward.org/plus/dsa/problems/rabin-karp-algorithm?source=strivers-a2z-dsa-track",
+    "rawRowText": "Rabin Karp Algorithm\n\tSolve\t\n\t\n---\n---\n\t\n\t\n\t\n\t\nHard"
+  },
+  {
+    "extractedTitle": "Rabin Karp Algorithm",
+    "link": "https://takeuforward.org/plus/dsa/problems/rabin-karp-algorithm?tab=editorial&source=strivers-a2z-dsa-track",
+    "rawRowText": "Rabin Karp Algorithm\n\tSolve\t\n\t\n---\n---\n\t\n\t\n\t\n\t\nHard"
+  },
+  {
+    "extractedTitle": "",
+    "link": "https://leetcode.com/problems/repeated-string-match/discuss/416144/Rabin-Karp-algorithm-C%2B%2B-implementation",
+    "rawRowText": ""
+  },
+  {
+    "extractedTitle": "KMP Algorithm or LPS array",
+    "link": "https://takeuforward.org/plus/dsa/problems/kmp-algorithm-or-lps-array?source=strivers-a2z-dsa-track",
+    "rawRowText": "KMP Algorithm or LPS array\n\tSolve\t\n\t\n---\n\t\n\t\n\t\n\t\nHard"
+  },
+  {
+    "extractedTitle": "KMP Algorithm or LPS array",
+    "link": "https://takeuforward.org/plus/dsa/problems/kmp-algorithm-or-lps-array?tab=editorial&source=strivers-a2z-dsa-track",
+    "rawRowText": "KMP Algorithm or LPS array\n\tSolve\t\n\t\n---\n\t\n\t\n\t\n\t\nHard"
+  },
+  {
+    "extractedTitle": "",
+    "link": "https://leetcode.com/problems/implement-strstr/",
+    "rawRowText": ""
+  },
+  {
+    "extractedTitle": "Longest happy prefix",
+    "link": "https://takeuforward.org/plus/dsa/problems/longest-happy-prefix?source=strivers-a2z-dsa-track",
+    "rawRowText": "Longest happy prefix\n\tSolve\t\n\t\n---\n\t\n\t\n\t\n\t\nHard"
+  },
+  {
+    "extractedTitle": "Longest happy prefix",
+    "link": "https://takeuforward.org/plus/dsa/problems/longest-happy-prefix?tab=editorial&source=strivers-a2z-dsa-track",
+    "rawRowText": "Longest happy prefix\n\tSolve\t\n\t\n---\n\t\n\t\n\t\n\t\nHard"
+  },
+  {
+    "extractedTitle": "",
+    "link": "https://leetcode.com/problems/longest-happy-prefix/",
+    "rawRowText": ""
+  },
+  {
+    "extractedTitle": "Count Palindromic Subsequences",
+    "link": "https://takeuforward.org/plus/dsa/problems/count-palindromic-subsequences?source=strivers-a2z-dsa-track",
+    "rawRowText": "Count Palindromic Subsequences\n\tSolve\t\n\t\n---\n---\n\t\n\t\n\t\n\t\nmedium"
+  },
+  {
+    "extractedTitle": "Count Palindromic Subsequences",
+    "link": "https://takeuforward.org/plus/dsa/problems/count-palindromic-subsequences?tab=editorial&source=strivers-a2z-dsa-track",
+    "rawRowText": "Count Palindromic Subsequences\n\tSolve\t\n\t\n---\n---\n\t\n\t\n\t\n\t\nmedium"
+  },
+  {
+    "extractedTitle": "",
+    "link": "https://leetcode.com/problems/palindromic-substrings/",
+    "rawRowText": ""
+  }
+]
