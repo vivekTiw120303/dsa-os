@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { X, Plus, Loader2 } from "lucide-react";
+import { useCustomProblems } from "@/src/hooks/use-custom-problems";
 
 interface AddProblemModalProps {
     isOpen: boolean;
@@ -9,6 +10,7 @@ interface AddProblemModalProps {
 }
 
 export function AddProblemModal({ isOpen, onClose }: AddProblemModalProps) {
+    const { addCustomProblem } = useCustomProblems();
     const [formData, setFormData] = useState({
         sheet: "a2z",
         name: "",
@@ -27,34 +29,32 @@ export function AddProblemModal({ isOpen, onClose }: AddProblemModalProps) {
         setMessage("");
 
         try {
-            const response = await fetch("/api/problems", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify(formData),
+            // Add problem to localStorage via hook
+            addCustomProblem({
+                sheet: formData.sheet,
+                name: formData.name,
+                leetcodeUrl: formData.url,
+                type: formData.type,
+                difficulty: formData.difficulty,
             });
 
-            const result = await response.json();
-
-            if (response.ok) {
-                setMessage("✓ Problem added successfully!");
-                setTimeout(() => {
-                    onClose();
-                    setFormData({
-                        sheet: "a2z",
-                        name: "",
-                        url: "",
-                        type: "code",
-                        difficulty: "Medium",
-                    });
-                    setMessage("");
-                }, 1500);
-            } else {
-                setMessage(`✗ ${result.error || "Failed to add problem"}`);
-            }
+            setMessage("✓ Problem added successfully!");
+            setTimeout(() => {
+                onClose();
+                setFormData({
+                    sheet: "a2z",
+                    name: "",
+                    url: "",
+                    type: "code",
+                    difficulty: "Medium",
+                });
+                setMessage("");
+                // Reload to show the new problem
+                window.location.reload();
+            }, 1500);
         } catch (error) {
-            setMessage("✗ Failed to add problem. Check your connection.");
+            const errorMessage = error instanceof Error ? error.message : "Failed to add problem";
+            setMessage(`✗ ${errorMessage}`);
         } finally {
             setIsSubmitting(false);
         }
@@ -223,7 +223,7 @@ export function AddProblemModal({ isOpen, onClose }: AddProblemModalProps) {
                 {/* Footer Note */}
                 <div className="mt-6 rounded-lg bg-white/5 border border-white/10 px-4 py-3">
                     <p className="text-xs text-zinc-500 leading-relaxed">
-                        Custom problems are stored locally in your data files. They will appear in the selected sheet immediately after adding.
+                        Custom problems are stored locally in your browser. They will appear in the selected sheet immediately after adding.
                     </p>
                 </div>
             </div>

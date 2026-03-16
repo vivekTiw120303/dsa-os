@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { useProgress } from "@/src/hooks/use-progress";
 import problemsData from "@/src/data/problems.json";
 import { ProblemRow } from "@/components/shared/problem-row";
@@ -13,6 +13,9 @@ import {
     Calendar,
     CheckCircle,
     Plus,
+    Download,
+    Upload,
+    Database,
 } from "lucide-react";
 
 interface Problem {
@@ -35,9 +38,13 @@ export default function DashboardPage() {
         getDueForReview,
         cycleStatus,
         markSolved,
+        exportData,
+        importData,
     } = useProgress();
 
     const [isAddProblemModalOpen, setIsAddProblemModalOpen] = useState(false);
+    const [importMessage, setImportMessage] = useState("");
+    const fileInputRef = useRef<HTMLInputElement>(null);
 
     const problems = problemsData as Problem[];
 
@@ -58,6 +65,39 @@ export default function DashboardPage() {
     // Get problems due for review today
     const dueForReviewIds = getDueForReview();
     const dueProblems = problems.filter((p) => dueForReviewIds.includes(p.id));
+
+    const handleExport = () => {
+        exportData();
+    };
+
+    const handleImportClick = () => {
+        fileInputRef.current?.click();
+    };
+
+    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onload = (event) => {
+            try {
+                const jsonData = event.target?.result as string;
+                const success = importData(jsonData);
+
+                if (success) {
+                    setImportMessage("✓ Data imported successfully!");
+                    setTimeout(() => {
+                        window.location.reload();
+                    }, 1500);
+                } else {
+                    setImportMessage("✗ Failed to import data. Invalid format.");
+                }
+            } catch (error) {
+                setImportMessage("✗ Failed to read file.");
+            }
+        };
+        reader.readAsText(file);
+    };
 
     return (
         <div className="relative min-h-screen bg-black">
@@ -241,6 +281,71 @@ export default function DashboardPage() {
                                         <Plus className="h-4 w-4" />
                                         Add Problem
                                     </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Data Management Section */}
+                        <div className="mb-12">
+                            <div className="mb-6">
+                                <div className="flex items-center gap-3 mb-2">
+                                    <Database className="h-6 w-6 text-blue-400" />
+                                    <h2 className="text-2xl font-bold text-white">Data Management</h2>
+                                </div>
+                                <p className="text-sm text-zinc-400">
+                                    Export your progress as a backup or import from a previous backup file.
+                                </p>
+                            </div>
+
+                            <div className="rounded-xl border border-white/10 bg-black/40 p-6 backdrop-blur-xl">
+                                <div className="flex flex-col gap-4">
+                                    <div className="flex flex-col sm:flex-row gap-3">
+                                        {/* Export Button */}
+                                        <button
+                                            onClick={handleExport}
+                                            className="flex-1 flex items-center justify-center gap-2 rounded-lg border border-emerald-500/30 bg-emerald-500/10 px-4 py-3 text-sm font-semibold text-emerald-400 transition-all hover:border-emerald-500/50 hover:bg-emerald-500/20 hover:shadow-[0_0_20px_rgba(16,185,129,0.2)]"
+                                        >
+                                            <Download className="h-4 w-4" />
+                                            Export Backup
+                                        </button>
+
+                                        {/* Import Button */}
+                                        <button
+                                            onClick={handleImportClick}
+                                            className="flex-1 flex items-center justify-center gap-2 rounded-lg border border-amber-500/30 bg-amber-500/10 px-4 py-3 text-sm font-semibold text-amber-400 transition-all hover:border-amber-500/50 hover:bg-amber-500/20 hover:shadow-[0_0_20px_rgba(245,158,11,0.2)]"
+                                        >
+                                            <Upload className="h-4 w-4" />
+                                            Import Backup
+                                        </button>
+
+                                        {/* Hidden File Input */}
+                                        <input
+                                            ref={fileInputRef}
+                                            type="file"
+                                            accept=".json"
+                                            onChange={handleFileChange}
+                                            className="hidden"
+                                        />
+                                    </div>
+
+                                    {/* Import Message */}
+                                    {importMessage && (
+                                        <div
+                                            className={`rounded-lg border px-4 py-2.5 text-sm text-center ${importMessage.startsWith("✓")
+                                                ? "border-emerald-500/30 bg-emerald-500/10 text-emerald-400"
+                                                : "border-red-500/30 bg-red-500/10 text-red-400"
+                                                }`}
+                                        >
+                                            {importMessage}
+                                        </div>
+                                    )}
+
+                                    {/* Info Note */}
+                                    <div className="rounded-lg bg-white/5 border border-white/10 px-4 py-3">
+                                        <p className="text-xs text-zinc-500 leading-relaxed">
+                                            Your progress is stored locally in your browser. Export regularly to prevent data loss if you clear your browser cache.
+                                        </p>
+                                    </div>
                                 </div>
                             </div>
                         </div>

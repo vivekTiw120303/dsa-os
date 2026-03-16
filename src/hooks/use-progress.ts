@@ -13,6 +13,8 @@ export interface ProgressEntry {
 
 export type ProgressState = Record<string, ProgressEntry>;
 
+const STORAGE_KEY = "dsa-os-progress";
+
 /**
  * Calculate next review date based on difficulty rating
  */
@@ -37,179 +39,199 @@ function calculateNextReviewDate(rating: DifficultyRating): string {
 }
 
 /**
- * Hook for managing problem progress with API backend
+ * Safely read from localStorage (handles SSR)
+ */
+function loadProgressFromStorage(): ProgressState {
+    if (typeof window === "undefined") {
+        return {};
+    }
+
+    try {
+        const stored = localStorage.getItem(STORAGE_KEY);
+        if (stored) {
+            return JSON.parse(stored);
+        }
+    } catch (error) {
+        console.error("Failed to load progress from localStorage:", error);
+    }
+
+    return {};
+}
+
+/**
+ * Safely write to localStorage
+ */
+function saveProgressToStorage(data: ProgressState): void {
+    if (typeof window === "undefined") {
+        return;
+    }
+
+    try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+    } catch (error) {
+        console.error("Failed to save progress to localStorage:", error);
+    }
+}
+
+/**
+ * Hook for managing problem progress with localStorage (100% client-side)
  */
 export function useProgress() {
     const [progressState, setProgressState] = useState<ProgressState>({});
     const [isHydrated, setIsHydrated] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
 
-    // Fetch progress from API on mount
-    const fetchProgress = useCallback(async () => {
-        try {
-            setIsLoading(true);
-            const response = await fetch("/api/progress");
-            if (response.ok) {
-                const data = await response.json();
-                setProgressState(data);
-            }
-        } catch (error) {
-            console.error("Failed to fetch progress:", error);
-        } finally {
-            setIsLoading(false);
-            setIsHydrated(true);
-        }
+    // Load progress from localStorage on mount
+    useEffect(() => {
+        setIsLoading(true);
+        const data = loadProgressFromStorage();
+        setProgressState(data);
+        setIsLoading(false);
+        setIsHydrated(true);
     }, []);
 
-    useEffect(() => {
-        fetchProgress();
-    }, [fetchProgress]);
-
     /**
-     * Update progress via API
+     * Update progress in state and localStorage
      */
-    const updateProgress = async (
-        id: string,
-        status: ProblemStatus,
-        nextReviewDate?: string
-    ) => {
-        console.log("🔄 updateProgress called:", { id, status, nextReviewDate });
-        try {
-            console.log("📡 Sending POST to /api/progress...");
-            const response = await fetch("/api/progress", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify({
-                    id,
-                    status,
-                    nextReviewDate,
-                }),
+    const updateProgress = useCallback(
+        (id: string, status: ProblemStatus, nextReviewDate?: string) => {
+            const newEntry: ProgressEntry = {
+                status,
+                nextReviewDate,
+                lastUpdated: new Date().toISOString(),
+            };
+
+            setProgressState((prev) => {
+                const updated = {
+                    ...prev,
+                    [id]: newEntry,
+                };
+                // Immediately save to localStorage
+                saveProgressToStorage(updated);
+                return updated;
             });
 
-            console.log("📥 Response status:", response.status, response.statusText);
-
-            if (response.ok) {
-                const result = await response.json();
-                console.log("✅ API response data:", result);
-                // Update local state
-                setProgressState((prev) => ({
-                    ...prev,
-                    [id]: result.data,
-                }));
-                return true;
-            } else {
-                const errorText = await response.text();
-                console.error("❌ API error response:", errorText);
-                return false;
-            }
-        } catch (error) {
-            console.error("❌ Failed to update progress:", error);
-            return false;
-        }
-    };
+            return true;
+        },
+        []
+    );
 
     /**
      * Mark a problem as solved with difficulty rating
      * This triggers the spaced repetition algorithm
      */
-    const markSolved = async (id: string, difficultyRating: DifficultyRating) => {
-        console.log("🎯 markSolved called:", { id, difficultyRating });
-        const nextReviewDate = calculateNextReviewDate(difficultyRating);
-        console.log("📅 Next review date calculated:", nextReviewDate);
-        const result = await updateProgress(id, "solved", nextReviewDate);
-        console.log("✅ Update result:", result);
-        return result;
-    };
+    const markSolved = useCallback(
+        (id: string, difficultyRating: DifficultyRating) => {
+            const nextReviewDate = calculateNextReviewDate(difficultyRating);
+            return updateProgress(id, "solved", nextReviewDate);
+        },
+        [updateProgress]
+    );
 
     /**
      * Cycle through states: todo -> solved -> review -> todo
-     * For solved state, this should trigger the difficulty modal
      */
-    const cycleStatus = async (id: string) => {
-        const current = progressState[id]?.status || "todo";
-        let nextStatus: ProblemStatus;
+    const cycleStatus = useCallback(
+        (id: string) => {
+            const current = progressState[id]?.status || "todo";
+            let nextStatus: ProblemStatus;
 
-        switch (current) {
-            case "todo":
-                // This should trigger the difficulty modal instead
-                // For now, we'll just mark as solved without review date
-                nextStatus = "solved";
-                break;
-            case "solved":
-                nextStatus = "review";
-                break;
-            case "review":
-                nextStatus = "todo";
-                break;
-            default:
-                nextStatus = "todo";
-        }
+            switch (current) {
+                case "todo":
+                    nextStatus = "solved";
+                    break;
+                case "solved":
+                    nextStatus = "review";
+                    break;
+                case "review":
+                    nextStatus = "todo";
+                    break;
+                default:
+                    nextStatus = "todo";
+            }
 
-        return await updateProgress(id, nextStatus);
-    };
+            return updateProgress(id, nextStatus);
+        },
+        [progressState, updateProgress]
+    );
 
     /**
      * Get progress for a specific step
      */
-    const getStepProgress = (problems: Array<{ id: string }>) => {
-        const total = problems.length;
-        const solved = problems.filter(
-            (p) =>
-                progressState[p.id]?.status === "solved" ||
-                progressState[p.id]?.status === "review"
-        ).length;
-        const percentage = total > 0 ? Math.round((solved / total) * 100) : 0;
+    const getStepProgress = useCallback(
+        (problems: Array<{ id: string }>) => {
+            const total = problems.length;
+            const solved = problems.filter(
+                (p) =>
+                    progressState[p.id]?.status === "solved" ||
+                    progressState[p.id]?.status === "review"
+            ).length;
+            const percentage = total > 0 ? Math.round((solved / total) * 100) : 0;
 
-        return { solved, total, percentage };
-    };
+            return { solved, total, percentage };
+        },
+        [progressState]
+    );
 
     /**
      * Get total progress across all problems
      */
-    const getTotalProgress = (allProblems: Array<{ id: string }>) => {
-        return getStepProgress(allProblems);
-    };
+    const getTotalProgress = useCallback(
+        (allProblems: Array<{ id: string }>) => {
+            return getStepProgress(allProblems);
+        },
+        [getStepProgress]
+    );
 
     /**
      * Get status for a specific problem
      */
-    const getStatus = (id: string): ProblemStatus => {
-        return progressState[id]?.status || "todo";
-    };
+    const getStatus = useCallback(
+        (id: string): ProblemStatus => {
+            return progressState[id]?.status || "todo";
+        },
+        [progressState]
+    );
 
     /**
      * Get full progress entry for a problem
      */
-    const getProgressEntry = (id: string): ProgressEntry | undefined => {
-        return progressState[id];
-    };
+    const getProgressEntry = useCallback(
+        (id: string): ProgressEntry | undefined => {
+            return progressState[id];
+        },
+        [progressState]
+    );
 
     /**
-     * Clear all progress - calls DELETE endpoint
+     * Clear all progress
      */
-    const clearAllProgress = async () => {
-        try {
-            const response = await fetch("/api/progress", {
-                method: "DELETE",
-            });
+    const clearAllProgress = useCallback(() => {
+        setProgressState({});
+        saveProgressToStorage({});
+        return true;
+    }, []);
 
-            if (response.ok) {
-                setProgressState({});
-                return true;
-            }
-            return false;
-        } catch (error) {
-            console.error("Failed to clear progress:", error);
-            return false;
-        }
-    };
+    /**
+     * Clear progress for a specific sheet
+     */
+    const clearSheetProgress = useCallback((sheetName: string, problemIds: string[]) => {
+        setProgressState((prev) => {
+            const updated = { ...prev };
+            // Remove progress for all problems in this sheet
+            problemIds.forEach(id => {
+                delete updated[id];
+            });
+            saveProgressToStorage(updated);
+            return updated;
+        });
+        return true;
+    }, []);
 
     /**
      * Get problems due for review today
      */
-    const getDueForReview = () => {
+    const getDueForReview = useCallback(() => {
         const today = new Date();
         today.setHours(0, 0, 0, 0);
 
@@ -225,7 +247,54 @@ export function useProgress() {
                 return reviewDate <= today;
             })
             .map(([id]) => id);
-    };
+    }, [progressState]);
+
+    /**
+     * Export progress data as JSON file download
+     */
+    const exportData = useCallback(() => {
+        if (typeof window === "undefined") {
+            return;
+        }
+
+        try {
+            const dataStr = JSON.stringify(progressState, null, 2);
+            const dataBlob = new Blob([dataStr], { type: "application/json" });
+            const url = URL.createObjectURL(dataBlob);
+            const link = document.createElement("a");
+            link.href = url;
+            link.download = "dsa-os-backup.json";
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(url);
+        } catch (error) {
+            console.error("Failed to export data:", error);
+        }
+    }, [progressState]);
+
+    /**
+     * Import progress data from JSON string
+     */
+    const importData = useCallback((jsonData: string) => {
+        try {
+            const parsed = JSON.parse(jsonData);
+
+            // Validate the structure
+            if (typeof parsed !== "object" || parsed === null) {
+                throw new Error("Invalid data format");
+            }
+
+            // Update state and localStorage
+            setProgressState(parsed);
+            saveProgressToStorage(parsed);
+
+            return true;
+        } catch (error) {
+            console.error("Failed to import data:", error);
+            return false;
+        }
+    }, []);
 
     return {
         progressState,
@@ -237,9 +306,11 @@ export function useProgress() {
         getStatus,
         getProgressEntry,
         clearAllProgress,
+        clearSheetProgress,
         getDueForReview,
+        exportData,
+        importData,
         isHydrated,
         isLoading,
-        refetch: fetchProgress,
     };
 }

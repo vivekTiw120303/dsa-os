@@ -5,7 +5,7 @@ import problemsData from "@/src/data/neetcode150.json";
 import { StepSection } from "@/components/shared/step-section";
 import { TopNav } from "@/src/components/layout/top-nav";
 import { useProgress } from "@/src/hooks/use-progress";
-import { Trophy } from "lucide-react";
+import { Trophy, RotateCcw } from "lucide-react";
 
 interface Problem {
     id: string;
@@ -20,7 +20,7 @@ interface Problem {
 
 export default function NeetCode150Page() {
     const [searchQuery, setSearchQuery] = useState("");
-    const { progressState, cycleStatus, markSolved, getTotalProgress, isHydrated } = useProgress();
+    const { progressState, cycleStatus, markSolved, getTotalProgress, isHydrated, clearSheetProgress } = useProgress();
 
     const problems = problemsData as Problem[];
 
@@ -35,6 +35,18 @@ export default function NeetCode150Page() {
 
     // Calculate total progress
     const { solved, total, percentage } = getTotalProgress(problems);
+
+    const handleResetSheet = () => {
+        const confirmed = window.confirm(
+            "Are you sure you want to reset all progress for NeetCode 150? This action cannot be undone."
+        );
+
+        if (confirmed) {
+            const problemIds = problems.map(p => p.id);
+            clearSheetProgress("neetcode150", problemIds);
+            window.location.reload();
+        }
+    };
 
     // Keyboard shortcut for search (Ctrl+K)
     useEffect(() => {
@@ -94,8 +106,18 @@ export default function NeetCode150Page() {
                                 </span>
                                 <span className="text-sm text-zinc-500">Complete</span>
                             </div>
-                            <div className="text-sm font-medium text-zinc-400">
-                                {solved} / {total} Problems
+                            <div className="flex items-center gap-3">
+                                <div className="text-sm font-medium text-zinc-400">
+                                    {solved} / {total} Problems
+                                </div>
+                                <button
+                                    onClick={handleResetSheet}
+                                    className="flex items-center gap-1.5 rounded-lg border border-red-500/30 bg-red-500/10 px-3 py-1.5 text-xs font-semibold text-red-400 transition-all hover:border-red-500/50 hover:bg-red-500/20 hover:shadow-[0_0_15px_rgba(239,68,68,0.2)]"
+                                    title="Reset this sheet"
+                                >
+                                    <RotateCcw className="h-3.5 w-3.5" />
+                                    Reset
+                                </button>
                             </div>
                         </div>
 
